@@ -11,10 +11,7 @@ namespace MatBlazor
     public class BaseMatIconButton : BaseMatDomComponent
     {
         [Inject]
-        public Microsoft.AspNetCore.Components.NavigationManager UriHelper { get; set; }
-
-        private bool _disabled;
-        private bool _toggled = false;
+        public NavigationManager UriHelper { get; set; }
 
         [Parameter]
         public RenderFragment ChildContent { get; set; }
@@ -26,10 +23,10 @@ namespace MatBlazor
         public string Icon { get; set; }
 
         /// <summary>
-        /// *Not available yet
+        /// Target of Link when clicked.
         /// </summary>
         [Parameter]
-        public string Target { get; set; }
+        public string Target { get; set; } = null;
 
         /// <summary>
         /// Icon to use when Button is clicked
@@ -39,11 +36,7 @@ namespace MatBlazor
 
 
         [Parameter]
-        public bool Toggled
-        {
-            get => _toggled;
-            set { _toggled = value; }
-        }
+        public bool Toggled { get; set; } = false;
 
         [Parameter]
         public EventCallback<bool> ToggledChanged { get; set; }
@@ -55,14 +48,17 @@ namespace MatBlazor
         public string Link { get; set; }
 
         /// <summary>
+        /// Force browser to redirect outside component router-space.
+        /// </summary>
+        /// 
+        [Parameter]
+        public bool ForceLoad { get; set; }
+
+        /// <summary>
         /// Button is disabled.
         /// </summary>
         [Parameter]
-        public bool Disabled
-        {
-            get => _disabled;
-            set { _disabled = value; }
-        }
+        public bool Disabled { get; set; }
 
         public BaseMatIconButton()
         {
@@ -88,6 +84,12 @@ namespace MatBlazor
         [Parameter]
         public EventCallback<MouseEventArgs> OnClick { get; set; }
 
+        /// <summary>
+        /// Stop propagation of the OnClick event
+        /// </summary>
+        [Parameter]
+        public bool OnClickStopPropagation { get; set; }
+
 
         [Parameter]
         public EventCallback<MouseEventArgs> OnMouseDown { get; set; }
@@ -105,11 +107,19 @@ namespace MatBlazor
 
             if (Link != null)
             {
-                UriHelper.NavigateTo(Link);
+                if (!string.IsNullOrEmpty(Target))
+                {
+                    await JsInvokeAsync<object>("open", Link, Target);
+                }
+                else
+                {
+                    UriHelper.NavigateTo(Link, ForceLoad);
+                }
+
             }
             else
             {
-                OnClick.InvokeAsync(ev);
+                await OnClick.InvokeAsync(ev);
                 if (Command?.CanExecute(CommandParameter) ?? false)
                 {
                     Command.Execute(CommandParameter);

@@ -8,6 +8,7 @@ import * as matSelect from './matSelect/matSelect';
 import * as matSlider from './matSlider/matSlider';
 import * as matSlideToggle from './matSlideToggle/matSlideToggle';
 import * as matCard from './matCard/matCard';
+import * as matChip from './matChip/matChip';
 import * as matChipSet from './matChipSet/matChipSet';
 import * as matAppBar from './matAppBar/matAppBar';
 import * as matIconButton from './matIconButton/matIconButton';
@@ -32,6 +33,7 @@ import * as matHidden from './matHidden/matHidden';
 import * as matAnchor from './matAnchor/matAnchor';
 import * as matFileUpload from './matFileUpload/matFileUpload';
 import * as matDataTable from './matTable/matDataTable';
+import * as matVirtualScroll from './matVirtualScroll/matVirtualScroll';
 
 
 window.matBlazor = {
@@ -45,6 +47,7 @@ window.matBlazor = {
   matSlider,
   matSlideToggle,
   matCard,
+  matChip,
   matChipSet,
   matAppBar,
   matIconButton,
@@ -67,6 +70,7 @@ window.matBlazor = {
   matAnchor,
   matFileUpload,
   matDataTable,
+  matVirtualScroll,
   utils,
 };
 

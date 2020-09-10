@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Components;
 namespace MatBlazor
 {
     /// <summary>
-    /// Material Design Slider for Blazor. Sliders let users select from a range of values by moving the slider thumb. 
+    /// Material Design Slider for Blazor. Sliders let users select from a range of values by moving the slider thumb.
     /// </summary>
     /// <typeparam name="TValue">sbyte, byte, short, ushort, int, uint, long, ulong, char, float, double, decimal, decimal?</typeparam>
     public class BaseMatSlider<TValue> : BaseMatInputComponent<TValue>
@@ -23,11 +23,11 @@ namespace MatBlazor
             ClassMapper
                 .Add("mat-slider")
                 .Add("mdc-slider")
-                .If("mdc-slider--discrete", () => Discrete);
-
+                .If("mdc-slider--discrete", () => Discrete)
+                .If("mdc-slider--display-markers", () => Discrete && Markers);
             CallAfterRender(async () =>
             {
-                await JsInvokeAsync<object>("matBlazor.matSlider.init", Ref, jsHelper.Reference);
+                await JsInvokeAsync<object>("matBlazor.matSlider.init", Ref, jsHelper.Reference, Immediate);
             });
         }
 
@@ -50,10 +50,16 @@ namespace MatBlazor
         public TValue ValueMax { get; set; }
 
         [Parameter]
+        public bool Discrete { get; set; }
+
+        [Parameter]
         public string Label { get; set; }
 
         [Parameter]
-        public bool Discrete { get; set; }
+        public bool Markers { get; set; }
+
+        [Parameter]
+        public bool Pin { get; set; }
 
         [Parameter]
         public TValue Step { get; set; }
@@ -63,5 +69,32 @@ namespace MatBlazor
 
         [Parameter]
         public bool Disabled { get; set; }
+
+        /// <summary>
+        /// When set to true, any change to the slider immediately changes the value.
+        /// </summary>
+        [Parameter]
+        public bool Immediate { get; set; }
+
+        public string MarkerStyle
+        {
+            get
+            {
+                try
+                {
+                    decimal.TryParse(ValueMin.ToString(), out var min);
+                    decimal.TryParse(ValueMax.ToString(), out var max);
+                    if (!decimal.TryParse(Step.ToString(), out var step))
+                    {
+                        step = 1;
+                    }
+                    return "background: linear-gradient(to right, currentcolor 2px, transparent 0px) 0px center / calc((100% - 2px) / " + ((max - 0) / step).ToString() + ") 100% repeat-x;";
+                }
+                catch
+                {
+                    return "";
+                }
+            }
+        }
     }
 }

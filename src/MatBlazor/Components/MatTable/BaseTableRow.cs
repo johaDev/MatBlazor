@@ -24,6 +24,9 @@ namespace MatBlazor
         public bool AllowSelection { get; set; }
 
         [Parameter]
+        public object RowItem { get; set; }
+
+        [Parameter]
         public EventCallback<bool> SelectedChanged { get; set; }
 
         public async Task ToggleSelectedAsync()
@@ -42,11 +45,11 @@ namespace MatBlazor
                 .If("mdc-table-row-selected", () => Selected);
         }
 
-        protected async void OnClickHandler(MouseEventArgs e)
+        protected void OnClickHandler(MouseEventArgs _)
         {
-            if (this.AllowSelection)
+            if (AllowSelection)
             {
-                await this.ToggleSelectedAsync();
+                ToggleSelectedAsync();
             }
         }
     }

@@ -11,6 +11,18 @@ namespace MatBlazor
         [Parameter]
         public bool Multi { get; set; }
 
+        /// <summary>
+        /// Hides toggle icon for all expansion panel summaries in the accordion
+        /// </summary>
+        [Parameter]
+        public bool HideToggle { get; set; }
+
+        /// <summary>
+        /// Enables lazy rendering for all expansion panel details in the accordion.
+        /// </summary>
+        [Parameter]
+        public bool LazyRendering { get; set; }
+
         public BaseMatExpansionPanel Current { get; private set; }
 
         public async Task ToggleAsync(BaseMatExpansionPanel panel)

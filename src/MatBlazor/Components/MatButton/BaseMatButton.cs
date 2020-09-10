@@ -14,7 +14,6 @@ namespace MatBlazor
         [Inject]
         public Microsoft.AspNetCore.Components.NavigationManager UriHelper { get; set; }
 
-
         protected async override Task OnFirstAfterRenderAsync()
         {
             await base.OnFirstAfterRenderAsync();
@@ -36,6 +35,12 @@ namespace MatBlazor
         /// </summary>
         [Parameter]
         public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+        /// <summary>
+        /// Stop propagation of the OnClick event
+        /// </summary>
+        [Parameter]
+        public bool OnClickStopPropagation { get; set; }
 
         /// <summary>
         ///  Command executed when the user clicks on an element.
@@ -67,86 +72,55 @@ namespace MatBlazor
         public string Link { get; set; }
 
         /// <summary>
+        /// Force browser to redirect outside component router-space.
+        /// </summary>
+        /// 
+        [Parameter]
+        public bool ForceLoad { get; set; }
+
+        /// <summary>
+        /// Target of Link when clicked.
+        /// </summary>
+        [Parameter]
+        public string Target { get; set; } = null;
+
+
+        /// <summary>
         /// Button has raised style.
         /// </summary>
         [Parameter]
-        public bool Raised
-        {
-            get => _raised;
-            set
-            {
-                _raised = value;
-                
-            }
-        }
+        public bool Raised { get; set; }
 
         /// <summary>
         /// Button has unelevated style.
         /// </summary>
         [Parameter]
-        public bool Unelevated
-        {
-            get => _unelevated;
-            set
-            {
-                _unelevated = value;
-                
-            }
-        }
+        public bool Unelevated { get; set; }
 
         /// <summary>
         /// Button has outlined style.
         /// </summary>
         [Parameter]
-        public bool Outlined
-        {
-            get => _outlined;
-            set
-            {
-                _outlined = value;
-            }
-        }
+        public bool Outlined { get; set; }
 
         /// <summary>
         /// Button has dense style.
         /// </summary>
 
         [Parameter]
-        public bool Dense
-        {
-            get => _dense;
-            set
-            {
-                _dense = value;
-            }
-        }
+        public bool Dense { get; set; }
 
         /// <summary>
         /// Button is disabled.
         /// </summary>
         [Parameter]
-        public bool Disabled
-        {
-            get => _disabled;
-            set
-            {
-                _disabled = value;
-                }
-        }
+        public bool Disabled { get; set; }
 
         /// <summary>
         /// Specifies an button's icon.
         /// </summary>
         [Parameter]
-        public string Icon
-        {
-            get => _icon;
-            set
-            {
-                _icon = value;
-                
-            }
-        }
+        public string Icon { get; set; }
 
         /// <summary>
         /// Specifies if icon has trailing position.
@@ -158,15 +132,7 @@ namespace MatBlazor
         /// Text label of Button.
         /// </summary>
         [Parameter]
-        public string Label
-        {
-            get => _label;
-            set
-            {
-                _label = value;
-                
-            }
-        }
+        public string Label { get; set; }
 
 
         /// <summary>
@@ -175,36 +141,36 @@ namespace MatBlazor
         [Parameter]
         public RenderFragment ChildContent { get; set; }
 
-        protected void OnClickHandler(MouseEventArgs ev)
+        protected async void OnClickHandler(MouseEventArgs ev)
         {
             if (Link != null)
             {
-                UriHelper.NavigateTo(Link);
+                if (!string.IsNullOrEmpty(Target))
+                {
+                    await JsInvokeAsync<object>("open", Link, Target);
+                }
+                else
+                {
+                     UriHelper.NavigateTo(Link, ForceLoad);
+                }
+
             }
             else
             {
-                OnClick.InvokeAsync(ev);
+               await OnClick.InvokeAsync(ev);
                 if (Command?.CanExecute(CommandParameter) ?? false)
                 {
                     Command.Execute(CommandParameter);
                 }
             }
         }
-
-        private bool _raised;
-        private bool _unelevated;
-        private bool _outlined;
-        private bool _dense;
-        private bool _disabled;
-        private string _icon;
-        private string _label;
     }
 
-//    public enum MatButtonType
-//    {
-//        Text = 0,
-//        Raised = 1,
-//        Unelevated = 2,
-//        Outlined = 3
-//    }
+    //    public enum MatButtonType
+    //    {
+    //        Text = 0,
+    //        Raised = 1,
+    //        Unelevated = 2,
+    //        Outlined = 3
+    //    }
 }

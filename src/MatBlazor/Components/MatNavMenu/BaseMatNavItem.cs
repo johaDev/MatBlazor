@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Components.Web;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -26,6 +27,12 @@ namespace MatBlazor
         public ICommand Command { get; set; }
 
         /// <summary>
+        /// Force browser to redirect outside component router-space.
+        /// </summary>
+        [Parameter]
+        public bool ForceLoad { get; set; }
+
+        /// <summary>
         ///  Command parameter.
         /// </summary>
         [Parameter]
@@ -33,6 +40,24 @@ namespace MatBlazor
 
         [Parameter]
         public bool Selected { get; set; }
+
+        /// <summary>
+        /// *Not yet functional - Target of Href when clicked.
+        /// </summary>
+        [Parameter]
+        public string Target { get; set; } = null;
+
+        /// <summary>
+        /// The title shown.
+        /// </summary>
+        [Parameter]
+        public string Title { get; set; } = null;
+
+        /// <summary>
+        ///  NavLinkMatch parameter used to determine the active state of the Nav Item.
+        /// </summary>
+        [Parameter]
+        public NavLinkMatch NavLinkMatch { get; set; } = NavLinkMatch.Prefix;
 
         /// <summary>
         /// Specifies weather you the Nav Item can be selected / active.
@@ -69,7 +94,10 @@ namespace MatBlazor
         /// </summary>
         protected async void OnClickHandler(MouseEventArgs e)
         {
-            if (Disabled) return;
+            if (Disabled)
+            {
+                return;
+            }
 
             if (AllowSelection)
             {
@@ -78,7 +106,15 @@ namespace MatBlazor
 
             if (Href != null)
             {
-                UriHelper.NavigateTo(Href);
+                if (!string.IsNullOrEmpty(Target))
+                {
+                    // Do nothing here as it is a target for an anchor tag
+                }
+                else
+                {
+                    UriHelper.NavigateTo(Href, ForceLoad);
+                }
+
             }
             else
             {

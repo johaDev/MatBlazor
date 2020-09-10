@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
 
 namespace MatBlazor
 {
-    public class BaseMatPaginator : BaseMatDomComponent
+    public class BaseMatPaginator : BaseMatDomComponent, IBaseMatPaginator
     {
         [Parameter]
         public EventCallback<MatPaginatorPageEvent> Page { get; set; }
@@ -15,7 +14,10 @@ namespace MatBlazor
         public string Label { get; set; } = "Items per Page:";
 
         [Parameter]
-        public string PageLabel { get; set; } = "Page:";
+        public string PageLabel { get; set; } = PageLabelDefault;
+
+
+        public static string PageLabelDefault = "Page:";
 
 
         [Parameter]
@@ -25,7 +27,7 @@ namespace MatBlazor
         [Parameter]
         public int Length { get; set; }
 
-        protected int CurrentPageIndex { get; set; }
+        public int PageIndex { get; set; }
 
         protected int TotalPages { get; set; }
 
@@ -37,7 +39,32 @@ namespace MatBlazor
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
+            Update();
+        }
+
+
+        public void Update()
+        {
+            // Length = ParentDataTable?.ItemsComponent?.Length() ?? Length;
             TotalPages = CalculateTotalPages(PageSize);
+        }
+
+
+        public static void OnInitializedStatic(IBaseMatPaginator paginator)
+        {
+            if (paginator.PageSize == 0 && paginator.PageSizeOptions != null && paginator.PageSizeOptions.Count > 0)
+            {
+                paginator.PageSize = paginator.PageSizeOptions[0].Value;
+            }
+        }
+
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+
+            OnInitializedStatic(this);
+
+            this.Update();
         }
 
         protected int CalculateTotalPages(int pageSize)
@@ -50,17 +77,18 @@ namespace MatBlazor
             return Math.Max(0, (int) Math.Ceiling((decimal) Length / PageSize));
         }
 
+
         public async Task NavigateToPage(MatPaginatorAction direction, int pageSize)
         {
             var pageSizeChanged = pageSize != PageSize;
             var totalPages = CalculateTotalPages(pageSize);
-            var page = CurrentPageIndex;
+            var page = PageIndex;
 
             if (pageSizeChanged)
             {
                 try
                 {
-                    page = ((CurrentPageIndex * PageSize) / pageSize);
+                    page = ((PageIndex * PageSize) / pageSize);
                 }
                 catch (OverflowException e)
                 {
@@ -106,9 +134,9 @@ namespace MatBlazor
                 page = TotalPages == 0 ? 0 : TotalPages - 1;
             }
 
-            if (CurrentPageIndex != page || pageSize != PageSize)
+            if (PageIndex != page || pageSize != PageSize)
             {
-                CurrentPageIndex = page;
+                PageIndex = page;
                 PageSize = pageSize;
                 await Page.InvokeAsync(new MatPaginatorPageEvent()
                 {
@@ -116,12 +144,16 @@ namespace MatBlazor
                     PageSize = pageSize,
                     Length = Length,
                 });
+                // ParentDataTable?.Update();
             }
         }
 
 
         [Parameter]
-        public IReadOnlyList<MatPageSizeOption> PageSizeOptions { get; set; } = new[]
+        public IReadOnlyList<MatPageSizeOption> PageSizeOptions { get; set; } = DefaultPageSizeOptions;
+
+
+        public static IReadOnlyList<MatPageSizeOption> DefaultPageSizeOptions = new MatPageSizeOption[]
         {
             new MatPageSizeOption(5),
             new MatPageSizeOption(10),
