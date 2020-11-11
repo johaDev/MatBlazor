@@ -4,12 +4,12 @@
 
 <DemoContainer>
     <Content>
-        <MatSlideToggle bind-Checked="@Val1"></MatSlideToggle>
+        <MatSlideToggle @bind-Value="@Val1"></MatSlideToggle>
         <span>@Val1</span>
-        <MatSlideToggle bind-Checked="@Val2"></MatSlideToggle>
+        <MatSlideToggle @bind-Value="@Val2"></MatSlideToggle>
         <span>@Val2</span>
 
-        @functions
+        @code
         {
             private bool Val1 = false;
             private bool Val2 = true;
@@ -18,12 +18,12 @@
     </Content>
     <SourceContent>
     	<BlazorFiddle Template="MatBlazor" Code=@(@"
-        <MatSlideToggle bind-Checked=""@Val1""></MatSlideToggle>
+        <MatSlideToggle @bind-Value=""@Val1""></MatSlideToggle>
         <span>@Val1</span>
-        <MatSlideToggle bind-Checked=""@Val2""></MatSlideToggle>
+        <MatSlideToggle @bind-Value=""@Val2""></MatSlideToggle>
         <span>@Val2</span>
 
-        @functions
+        @code
         {
             private bool Val1 = false;
             private bool Val2 = true;
@@ -38,11 +38,11 @@
 
 <DemoContainer>
     <Content>
-        <MatSlideToggle Label="off/on"></MatSlideToggle>
+        <MatSlideToggle TValue="bool" Label="off/on"></MatSlideToggle>
     </Content>
     <SourceContent>
     	<BlazorFiddle Template="MatBlazor" Code=@(@"
-        <MatSlideToggle Label=""off/on""></MatSlideToggle>
+        <MatSlideToggle TValue=""bool"" Label=""off/on""></MatSlideToggle>
     ")></BlazorFiddle>
     </SourceContent>
 </DemoContainer>
@@ -52,11 +52,53 @@
 
 <DemoContainer>
     <Content>
-        <MatSlideToggle Disabled="true"></MatSlideToggle>
+        <MatSlideToggle TValue="bool" Disabled="true"></MatSlideToggle>
     </Content>
     <SourceContent>
     	<BlazorFiddle Template="MatBlazor" Code=@(@"
-        <MatSlideToggle Disabled=""true""></MatSlideToggle>
+        <MatSlideToggle TValue=""bool"" Disabled=""true""></MatSlideToggle>
+    ")></BlazorFiddle>
+    </SourceContent>
+</DemoContainer>
+
+
+<h5 class="mat-h5">Checked changed event</h5>
+
+<DemoContainer>
+    <Content>
+        <MatSlideToggle TValue="bool" Label="Switch" ValueChanged="@(e=>Toggle(e))"></MatSlideToggle>
+        
+        @code{
+            private void Toggle(bool toggled)
+            {
+                if (toggled)
+                {
+                    Console.WriteLine("Toggle true");
+                }
+                else
+                {
+                    Console.WriteLine("Toggle false");
+                }
+            }
+        }
+    </Content>
+    <SourceContent>
+    	<BlazorFiddle Template="MatBlazor" Code=@(@"
+        <MatSlideToggle TValue=""bool"" Label=""Switch"" ValueChanged=""@(e=>Toggle(e))""></MatSlideToggle>
+        
+        @code{
+            private void Toggle(bool toggled)
+            {
+                if (toggled)
+                {
+                    Console.WriteLine(""Toggle true"");
+                }
+                else
+                {
+                    Console.WriteLine(""Toggle false"");
+                }
+            }
+        }
     ")></BlazorFiddle>
     </SourceContent>
 </DemoContainer>

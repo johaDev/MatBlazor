@@ -1,4 +1,3 @@
-import * as styles from './matAccordion.scss';
 import {MDCRipple} from '@material/ripple/component';
 
 export function init(ref) {
@@ -6,7 +5,7 @@ export function init(ref) {
 }
 
 export function initSummary(ref) {
-  console.log(ref);
+  // console.log(ref);
   var ripple = new MDCRipple(ref);
   // ripple.unbounded = true;
 

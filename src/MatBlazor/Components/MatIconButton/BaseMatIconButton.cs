@@ -1,20 +1,17 @@
-﻿using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using System.Threading.Tasks;
 using System.Windows.Input;
-using Microsoft.AspNetCore.Components;
 
 namespace MatBlazor
 {
     /// <summary>
     /// Icons are appropriate for buttons that allow a user to take actions or make a selection, such as adding or removing a star to an item.
     /// </summary>
-    public class BaseMatIconButton : BaseMatComponent
+    public class BaseMatIconButton : BaseMatDomComponent
     {
-
         [Inject]
-        public Microsoft.AspNetCore.Components.IUriHelper UriHelper { get; set; }
-
-        private bool _disabled;
-        private bool _toggled = false;
+        public NavigationManager UriHelper { get; set; }
 
         [Parameter]
         public RenderFragment ChildContent { get; set; }
@@ -26,10 +23,10 @@ namespace MatBlazor
         public string Icon { get; set; }
 
         /// <summary>
-        /// *Not available yet
+        /// Target of Link when clicked.
         /// </summary>
         [Parameter]
-        public string Target { get; set; }
+        public string Target { get; set; } = null;
 
         /// <summary>
         /// Icon to use when Button is clicked
@@ -38,15 +35,11 @@ namespace MatBlazor
         public string ToggleIcon { get; set; }
 
 
-        protected bool Toggled
-        {
-            get => _toggled;
-            set
-            {
-                _toggled = value;
-                ClassMapper.MakeDirty();
-            }
-        }
+        [Parameter]
+        public bool Toggled { get; set; } = false;
+
+        [Parameter]
+        public EventCallback<bool> ToggledChanged { get; set; }
 
         /// <summary>
         /// Navigate to this url when clicked.
@@ -55,18 +48,17 @@ namespace MatBlazor
         public string Link { get; set; }
 
         /// <summary>
+        /// Force browser to redirect outside component router-space.
+        /// </summary>
+        /// 
+        [Parameter]
+        public bool ForceLoad { get; set; }
+
+        /// <summary>
         /// Button is disabled.
         /// </summary>
         [Parameter]
-        public bool Disabled
-        {
-            get => _disabled;
-            set
-            {
-                _disabled = value;
-                ClassMapper.MakeDirty();
-            }
-        }
+        public bool Disabled { get; set; }
 
         public BaseMatIconButton()
         {
@@ -78,41 +70,56 @@ namespace MatBlazor
         ///  Command executed when the user clicks on an element.
         /// </summary>
         [Parameter]
-        protected ICommand Command { get; set; }
+        public ICommand Command { get; set; }
 
         /// <summary>
         ///  Command parameter.
         /// </summary>
         [Parameter]
-        protected object CommandParameter { get; set; }
+        public object CommandParameter { get; set; }
 
         /// <summary>
         ///  Event occurs when the user clicks on an element.
         /// </summary>
         [Parameter]
-        protected EventCallback<UIMouseEventArgs> OnClick { get; set; }
-        
-       
+        public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+        /// <summary>
+        /// Stop propagation of the OnClick event
+        /// </summary>
         [Parameter]
-        protected EventCallback<UIMouseEventArgs> OnMouseDown { get; set; }
+        public bool OnClickStopPropagation { get; set; }
+
+
+        [Parameter]
+        public EventCallback<MouseEventArgs> OnMouseDown { get; set; }
 
         protected async override Task OnFirstAfterRenderAsync()
         {
             await base.OnFirstAfterRenderAsync();
-            await Js.InvokeAsync<object>("matBlazor.matIconButton.init", Ref);
+            await JsInvokeAsync<object>("matBlazor.matIconButton.init", Ref);
         }
 
-        protected void OnClickHandler(UIMouseEventArgs ev)
+        protected async Task OnClickHandler(MouseEventArgs ev)
         {
-            _toggled = !_toggled;
+            Toggled = !Toggled;
+            await ToggledChanged.InvokeAsync(Toggled);
 
             if (Link != null)
             {
-                UriHelper.NavigateTo(Link);
+                if (!string.IsNullOrEmpty(Target))
+                {
+                    await JsInvokeAsync<object>("open", Link, Target);
+                }
+                else
+                {
+                    UriHelper.NavigateTo(Link, ForceLoad);
+                }
+
             }
             else
             {
-                OnClick.InvokeAsync(ev);
+                await OnClick.InvokeAsync(ev);
                 if (Command?.CanExecute(CommandParameter) ?? false)
                 {
                     Command.Execute(CommandParameter);

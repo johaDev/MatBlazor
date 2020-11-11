@@ -6,104 +6,112 @@ using Microsoft.JSInterop;
 
 namespace MatBlazor
 {
-    public abstract class BaseMatComponent : ComponentBase, IBaseMatComponent
+    public abstract class BaseMatComponent : ComponentBase, IBaseMatComponent, IDisposable
     {
-        private ElementRef _ref;
-
-        /// <summary>
-        /// Returned ElementRef reference for DOM element.
-        /// </summary>
-        public virtual ElementRef Ref
-        {
-            get => _ref;
-            set
-            {
-                _ref = value;
-                RefBack?.Set(value);
-            }
-        }
-
-
         [Parameter]
         public ForwardRef RefBack { get; set; }
 
-        public string MatBlazorId = IdGeneratorHelper.Generate("matBlazor_id_");
+        protected bool Rendered { get; private set; }
 
-        [CascadingParameter]
-        public MatTheme Theme { get; set; }
 
-        protected ClassMapper ClassMapper { get; } = new ClassMapper();
-
-        [Inject]
-        protected IJSRuntime Js { get; set; }
-
-        private Queue<Func<Task>> afterRenderCallQuene = new Queue<Func<Task>>();
-
-        private bool isRendered = false;
-
+        private readonly Queue<Func<Task>> afterRenderCallQueue = new Queue<Func<Task>>();
 
         protected void CallAfterRender(Func<Task> action)
         {
-            afterRenderCallQuene.Enqueue(action);
+            afterRenderCallQueue.Enqueue(action);
         }
 
-        protected async override Task OnAfterRenderAsync()
+
+        protected async override Task OnAfterRenderAsync(bool firstRender)
         {
-            if (!isRendered)
+            Rendered = true;
+            await base.OnAfterRenderAsync(firstRender);
+            if (firstRender)
             {
                 await OnFirstAfterRenderAsync();
-                isRendered = true;
             }
 
-            Func<Task> action;
-            while (afterRenderCallQuene.Count > 0)
+            if (afterRenderCallQueue.Count > 0)
             {
-                action = afterRenderCallQuene.Dequeue();
-                await action();
+                var actions = afterRenderCallQueue.ToArray();
+                afterRenderCallQueue.Clear();
+
+                foreach (var action in actions)
+                {
+                    if (Disposed)
+                    {
+                        return;
+                    }
+
+                    await action();
+                }
             }
         }
 
-        protected async virtual Task OnFirstAfterRenderAsync()
+        protected virtual Task OnFirstAfterRenderAsync()
         {
+            return Task.CompletedTask;
         }
 
         protected BaseMatComponent()
         {
-            ClassMapper
-                .Get(() => this.Class)
-                .Get(() => this.Theme?.GetClass());
         }
 
-        /// <summary>
-        /// Specifies one or more classnames for an DOM element.
-        /// </summary>
-        [Parameter]
-        public string Class
+        public virtual void Dispose()
         {
-            get => _class;
-            set
+            Disposed = true;
+        }
+
+        protected bool Disposed { get; private set; }
+
+        protected void InvokeStateHasChanged()
+        {
+            InvokeAsync(() =>
             {
-                _class = value;
-                ClassMapper.MakeDirty();
+                try
+                {
+                    if (!Disposed)
+                    {
+                        StateHasChanged();
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            });
+        }
+
+
+        [Inject]
+        protected IJSRuntime Js { get; set; }
+
+        protected async Task<T> JsInvokeAsync<T>(string code, params object[] args)
+        {
+            try
+            {
+                return await Js.InvokeAsync<T>(code, args);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
             }
         }
 
+        #region Hack to fix https: //github.com/aspnet/AspNetCore/issues/11159
 
-        /// <summary>
-        /// Specifies an inline style for an DOM element.
-        /// </summary>
-        [Parameter]
-        public string Style
+        public static object CreateDotNetObjectRefSyncObj = new object();
+
+        protected DotNetObjectReference<T> CreateDotNetObjectRef<T>(T value) where T : class
         {
-            get => _style;
-            set
-            {
-                _style = value;
-                this.StateHasChanged();
-            }
+            return DotNetObjectReference.Create(value);
         }
 
-        private string _class;
-        private string _style;
+        protected void DisposeDotNetObjectRef<T>(DotNetObjectReference<T> value) where T : class
+        {
+            value?.Dispose();
+        }
+
+        #endregion
     }
 }

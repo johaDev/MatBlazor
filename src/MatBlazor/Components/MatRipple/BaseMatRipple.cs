@@ -5,13 +5,13 @@ namespace MatBlazor
     /// <summary>
     /// Ripples are visual representations used to communicate the status of a component or interactive element. 
     /// </summary>
-    public class BaseMatRipple : BaseMatComponent
+    public class BaseMatRipple : BaseMatDomComponent
     {
         [Parameter]
-        protected RenderFragment ChildContent { get; set; }
+        public RenderFragment ChildContent { get; set; }
 
         [Parameter]
-        protected MatRippleColor Color { get; set; }
+        public MatRippleColor Color { get; set; }
 
         public BaseMatRipple()
         {
@@ -19,7 +19,7 @@ namespace MatBlazor
                 .Add("mdc-ripple-surface")
                 .If("mdc-ripple-surface--primary", () => Color == MatRippleColor.Primary)
                 .If("mdc-ripple-surface--accent", () => Color == MatRippleColor.Secondary);
-            CallAfterRender(async () => { await Js.InvokeAsync<object>("matBlazor.matRipple.init", Ref); });
+            CallAfterRender(async () => { await JsInvokeAsync<object>("matBlazor.matRipple.init", Ref); });
         }
     }
 }

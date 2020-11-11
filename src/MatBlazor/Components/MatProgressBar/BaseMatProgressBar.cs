@@ -1,28 +1,28 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
 
 namespace MatBlazor
 {
     /// <summary>
     /// Progress indicators display the length of a process or express an unspecified wait time.
     /// </summary>
-    public class BaseMatProgressBar : BaseMatComponent
+    public class BaseMatProgressBar : BaseMatDomComponent
     {
         private double _progress;
         private double _buffer;
 
         [Parameter]
-        protected bool Indeterminate { get; set; }
+        public bool Indeterminate { get; set; }
 
         [Parameter]
-        protected bool Reversed { get; set; }
+        public bool Reversed { get; set; }
 
         [Parameter]
-        protected bool Closed { get; set; }
+        public bool Closed { get; set; }
 
         [Parameter]
-        protected double Progress
+        public double Progress
         {
             get => _progress;
             set
@@ -32,14 +32,14 @@ namespace MatBlazor
                     _progress = value;
                     CallAfterRender(async () =>
                     {
-                        await Js.InvokeAsync<object>("matBlazor.matProgressBar.setProgress", Ref, value);
+                        await JsInvokeAsync<object>("matBlazor.matProgressBar.setProgress", Ref, value);
                     });
                 }
             }
         }
 
         [Parameter]
-        protected double Buffer
+        public double Buffer
         {
             get => _buffer;
             set
@@ -50,7 +50,7 @@ namespace MatBlazor
 
                     CallAfterRender(async () =>
                     {
-                        await Js.InvokeAsync<object>("matBlazor.matProgressBar.setBuffer", Ref, value);
+                        await JsInvokeAsync<object>("matBlazor.matProgressBar.setBuffer", Ref, value);
                     });
                 }
             }
@@ -60,11 +60,12 @@ namespace MatBlazor
         public BaseMatProgressBar()
         {
             ClassMapper
+                .Add("mat-progress-bar")
                 .Add("mdc-linear-progress")
                 .If("mdc-linear-progress--indeterminate", () => this.Indeterminate)
                 .If("mdc-linear-progress--reversed", () => this.Reversed)
                 .If("mdc-linear-progress--closed", () => Closed);
-            CallAfterRender(async () => { await Js.InvokeAsync<object>("matBlazor.matProgressBar.init", Ref); });
+            CallAfterRender(async () => { await JsInvokeAsync<object>("matBlazor.matProgressBar.init", Ref); });
         }
 
         protected override Task OnParametersSetAsync()

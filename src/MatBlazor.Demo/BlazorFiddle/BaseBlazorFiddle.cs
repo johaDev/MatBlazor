@@ -1,36 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.AspNetCore.Components;
+using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
 
 namespace MatBlazor.Demo.BlazorFiddle
 {
-    public class BaseBlazorFiddle : BaseMatComponent
+    public class BaseBlazorFiddle : BaseMatDomComponent
     {
         [Parameter]
-        protected string Code { get; set; }
+        public string Code { get; set; }
 
         [Parameter]
-        protected string Template { get; set; } = null;
+        public string Template { get; set; } = null;
 
         protected async override Task OnFirstAfterRenderAsync()
         {
             await base.OnFirstAfterRenderAsync();
             try
             {
-                await Js.InvokeAsync<object>("blazorFiddle.create", Ref, new
+                await JsInvokeAsync<object>("blazorFiddle.create", Ref, new
                 {
-                    Text = this.Code,
-                    Template = this.Template,
+                    Text = Code,
+                    Template,
                 });
             }
-            catch (Exception e)
+            catch (Exception /*e*/)
             {
 //                Console.WriteLine(e);
 //                throw;
             }
-            
         }
     }
 }

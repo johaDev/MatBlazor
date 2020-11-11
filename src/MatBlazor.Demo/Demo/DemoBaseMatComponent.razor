@@ -3,38 +3,96 @@
 
 <p class="mat-body1">BaseMatComponent contains base component parameters and features.</p>
 
-<h5 class="mat-h5">Capture of Reference of the component</h5>
+<h5 class="mat-h5">@@Attributes and Id</h5>
 <DemoContainer>
     <Content>
-        <MatButton ref="ButtonRef" OnClick="@Click">Get me Ref</MatButton>
-        
-        @functions
-        {
-            BaseMatButton ButtonRef;
-
-            void Click(UIMouseEventArgs e)
-            {
-            // this.ButtonRef - Reference for MatButton component
-            // this.ButtonRef.Ref - Reference for Dom Element of button
-            }
-
-        }
+        <MatButton customTest="123">Button with custom attribute</MatButton>
+        <MatStringField customTest="123" Label="TextField with custom attribute"></MatStringField>
     </Content>
     <SourceContent>
     	<BlazorFiddle Template="MatBlazor" Code=@(@"
-        <MatButton ref=""ButtonRef"" OnClick=""@Click"">Get me Ref</MatButton>
-        
-        @functions
-        {
-            BaseMatButton ButtonRef;
+        <MatButton customTest=""123"">Button with custom attribute</MatButton>
+        <MatStringField customTest=""123"" Label=""TextField with custom attribute""></MatStringField>
+    ")></BlazorFiddle>
+    </SourceContent>
+</DemoContainer>
 
-            void Click(UIMouseEventArgs e)
+
+<h5 class="mat-h5">Capture of Reference of the component using <a href="/ForwardRef">ForwardRef</a></h5>
+<DemoContainer>
+    <Content>
+
+
+        <MatButton RefBack="buttonRefBack" OnClick="@Click2">Get me Ref</MatButton>
+
+        @code
+        {
+            ForwardRef buttonRefBack = new ForwardRef();
+
+            void Click2(MouseEventArgs e)
+            {
+            // buttonRefBack.Current - Reference for Dom Element of button
+            }
+
+        }
+
+    </Content>
+    <SourceContent>
+    	<BlazorFiddle Template="MatBlazor" Code=@(@"
+
+
+        <MatButton RefBack=""buttonRefBack"" OnClick=""@Click2"">Get me Ref</MatButton>
+
+        @code
+        {
+            ForwardRef buttonRefBack = new ForwardRef();
+
+            void Click2(MouseEventArgs e)
+            {
+            // buttonRefBack.Current - Reference for Dom Element of button
+            }
+
+        }
+
+    ")></BlazorFiddle>
+    </SourceContent>
+</DemoContainer>
+
+
+<h5 class="mat-h5">Capture of Reference of the component</h5>
+<DemoContainer>
+    <Content>
+        <MatButton @ref="ButtonRef" OnClick="@Click">Get me Ref</MatButton>
+
+        @code
+        {
+            MatButton ButtonRef;
+
+            void Click(MouseEventArgs e)
             {
             // this.ButtonRef - Reference for MatButton component
             // this.ButtonRef.Ref - Reference for Dom Element of button
             }
 
         }
+
+    </Content>
+    <SourceContent>
+    	<BlazorFiddle Template="MatBlazor" Code=@(@"
+        <MatButton @ref=""ButtonRef"" OnClick=""@Click"">Get me Ref</MatButton>
+
+        @code
+        {
+            MatButton ButtonRef;
+
+            void Click(MouseEventArgs e)
+            {
+            // this.ButtonRef - Reference for MatButton component
+            // this.ButtonRef.Ref - Reference for Dom Element of button
+            }
+
+        }
+
     ")></BlazorFiddle>
     </SourceContent>
 </DemoContainer>
@@ -44,9 +102,7 @@
 <DemoContainer>
     <Content>
         <style>
-            .my-button-class {
-                background: lightcoral !important;
-            }
+            .my-button-class { background: lightcoral !important; }
         </style>
 
         <MatButton Class="my-button-class">Button with class</MatButton>
@@ -55,9 +111,7 @@
     <SourceContent>
     	<BlazorFiddle Template="MatBlazor" Code=@(@"
         <style>
-            .my-button-class {
-                background: lightcoral !important;
-            }
+            .my-button-class { background: lightcoral !important; }
         </style>
 
         <MatButton Class=""my-button-class"">Button with class</MatButton>

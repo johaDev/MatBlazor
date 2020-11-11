@@ -1,6 +1,4 @@
-import './matCard.scss';
-
-
-export class MatCard {
+// alert(111);
+export function init(ref) {
 
 }

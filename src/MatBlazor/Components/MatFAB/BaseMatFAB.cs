@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace MatBlazor
 {
     /// <summary>
     /// A floating action button represents the primary action in an application.
     /// </summary>
-    public class BaseMatFAB : BaseMatComponent
+    public class BaseMatFAB : BaseMatDomComponent
     {
         [Parameter]
         public string Icon { get; set; }
@@ -20,7 +21,7 @@ namespace MatBlazor
         public RenderFragment ChildContent { get; set; }
 
         [Parameter]
-        public EventCallback<UIMouseEventArgs> OnClick { get; set; }
+        public EventCallback<MouseEventArgs> OnClick { get; set; }
 
         public BaseMatFAB()
         {

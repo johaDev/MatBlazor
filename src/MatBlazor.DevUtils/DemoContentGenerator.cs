@@ -1,29 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Web;
-using System.Xml;
-using Newtonsoft.Json;
+﻿using MatBlazor.DevUtils.Core;
 using NUnit.Framework;
-using System.Linq;
-using MatBlazor.DevUtils.Core;
+using System;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Xml;
 
 namespace MatBlazor.DevUtils
 {
     [TestFixture]
     public class DemoContentGenerator
     {
+
+
+        public void Run()
+        {
+            this.GenerateDocumentation();
+            this.GenerateNews();
+            this.GenerateSponsors();
+            this.Generate();
+        }
+
+
         [Test]
         public void GenerateDocumentation()
         {
-            
             var config = Config.GetConfig();
-            var gen = new MatDocumenationGenerator(typeof(BaseMatComponent).Assembly,
+            var gen = new MatDocumenationGenerator(typeof(BaseMatDomComponent).Assembly,
                 Path.Combine(config.Path, "MatBlazor.Demo", "Doc"));
             {
-            };
+            }
+            ;
             gen.Generate();
         }
 
@@ -31,33 +37,24 @@ namespace MatBlazor.DevUtils
         [Test]
         public void GenerateNews()
         {
-            var config = Config.GetConfig();
-            var lines = File.ReadAllLines(Path.Combine(config.RepositoryPath, "README.md"));
-
-            lines = lines.SkipWhile(i => !i.Trim().Equals("## News", StringComparison.InvariantCultureIgnoreCase))
-                .ToArray();
-
-            lines = lines.TakeWhile((i, index) => !(i.Trim().StartsWith("## ") && index > 0)).ToArray();
-
-            var text = string.Join("\r\n", lines);
-
-            Console.WriteLine(text);
-
-            var result = CommonMark.CommonMarkConverter.Convert(text);
-
-            Console.WriteLine(result);
-
-            var newsFile = Path.Combine(config.Path, "MatBlazor.Demo", "Shared", "News.razor");
-
-            if (!File.Exists(newsFile))
+            var gen = new MDInfoGenerator()
             {
-                throw new Exception("News file not exists");
-            }
+                Header = "News",
+                TargetFile = "News.razor"
+            };
+            gen.Generate();
+        }
 
-            result = "<!-- THIS IS AUTO GENERATED FILE!!! -->\r\n\r\n" + result;
 
-
-            File.WriteAllText(newsFile, result);
+        [Test]
+        public void GenerateSponsors()
+        {
+            var gen = new MDInfoGenerator()
+            {
+                Header = "Sponsors & Backers",
+                TargetFile = "Sponsors.razor"
+            };
+            gen.Generate();
         }
 
 
@@ -108,7 +105,7 @@ namespace MatBlazor.DevUtils
                     if (doc.DocumentElement.Attributes != null && doc.DocumentElement.Attributes["SourcePath"] != null)
                     {
                         var sourcePath = new Uri(new Uri(fileInfo.FullName),
-                            doc.DocumentElement.Attributes["SourcePath"].Value).AbsolutePath;
+                            doc.DocumentElement.Attributes["SourcePath"].Value).LocalPath;
                         sourceContent = System.IO.File.ReadAllText(sourcePath);
                     }
 
@@ -133,37 +130,6 @@ namespace MatBlazor.DevUtils
         private string PrepareSourceCode(string s)
         {
             return $@"<BlazorFiddle Template=""MatBlazor"" Code=@(@""{s.Replace("\"", "\"\"")}"")></BlazorFiddle>";
-        }
-
-        private string EscapeString1(string s)
-        {
-            //            XmlDocument doc = new XmlDocument();
-            //            XmlAttribute attr = doc.CreateAttribute("attr");
-            //            attr.InnerText = s;
-            //            s = attr.InnerXml;
-            //
-            //            s = s.Replace("\r", "&#xD;").Replace("\n", "&#xA;").Replace("\"", "&quot;");
-            //
-            //            return $"<pre data=\"{s}\"></pre>";
-
-
-            var f = System.Uri.EscapeDataString(s);
-
-            s = HttpUtility.HtmlEncode(s);
-            var sb = new StringBuilder();
-            if (s != null)
-            {
-                foreach (var ch in s)
-                {
-                    sb.Append("\\u" + ((int) ch).ToString("X4"));
-                }
-            }
-
-            s = sb.ToString();
-
-
-            return
-                $"<div style=\"white-space: pre-wrap;\">@((MarkupString) \"{s}\")</div><a href=\"https://localhost:44367/t-MatBlazor/?f={f}\">Test</a>";
         }
     }
 }

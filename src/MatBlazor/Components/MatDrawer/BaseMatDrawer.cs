@@ -1,17 +1,18 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using System.Threading.Tasks;
 
 namespace MatBlazor
 {
     /// <summary>
     /// The navigation drawer slides in from the left and contains the navigation destinations for your app.
     /// </summary>
-    public class BaseMatDrawer : BaseMatComponent
+    public class BaseMatDrawer : BaseMatDomComponent
     {
         private bool _opened;
-        
+
         [Parameter]
-        protected RenderFragment ChildContent { get; set; }
+        public RenderFragment ChildContent { get; set; }
 
 
         [Parameter]
@@ -19,7 +20,6 @@ namespace MatBlazor
 
         [Parameter]
         public int ContentTabIndex { get; set; } = 0;
-
 
 
         [Parameter]
@@ -31,10 +31,10 @@ namespace MatBlazor
                 if (this._opened != value)
                 {
                     _opened = value;
-                    
+
                     this.CallAfterRender(async () =>
                     {
-                        await this.Js.InvokeAsync<object>("matBlazor.matDrawer.setOpened", Ref, _opened);
+                        await this.JsInvokeAsync<object>("matBlazor.matDrawer.setOpened", Ref, _opened);
                     });
 
                     OpenedChanged.InvokeAsync(value);
@@ -46,10 +46,9 @@ namespace MatBlazor
         [Parameter]
         public EventCallback<bool> OpenedChanged { get; set; }
 
+        private DotNetObjectReference<BaseMatDrawer> dotNetObjectRef;
         public BaseMatDrawer()
         {
-            
-
             ClassMapper
                 .Add("mdc-drawer")
                 .Add("mat-drawer")
@@ -58,10 +57,16 @@ namespace MatBlazor
 
             this.CallAfterRender(async () =>
             {
-                await Js.InvokeAsync<object>("matBlazor.matDrawer.init", Ref, new DotNetObjectRef(this));
+                dotNetObjectRef ??= CreateDotNetObjectRef(this);
+                await JsInvokeAsync<object>("matBlazor.matDrawer.init", Ref, dotNetObjectRef);
             });
         }
 
+        public override void Dispose()
+        {
+            base.Dispose();
+            DisposeDotNetObjectRef(dotNetObjectRef);
+        }
 
 
         [JSInvokable]
@@ -72,5 +77,9 @@ namespace MatBlazor
             OpenedChanged.InvokeAsync(false);
         }
 
+        protected async override Task OnInitializedAsync()
+        {
+            await base.OnInitializedAsync();
+        }
     }
 }

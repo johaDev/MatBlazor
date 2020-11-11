@@ -8,7 +8,7 @@
 
         <p>
             <MatButton Label="Menu" OnClick="@OnClick" RefBack="@buttonForwardRef"></MatButton>
-            <MatMenu ref="Menu" TargetForwardRef="@buttonForwardRef">
+            <MatMenu @ref="Menu"  TargetForwardRef="@buttonForwardRef">
                 <MatList>
                     <MatListItem>Item 1</MatListItem>
                     <MatListItem>Item 2</MatListItem>
@@ -19,12 +19,12 @@
             </MatMenu>
         </p>
 
-        @functions
+        @code
         {
             ForwardRef buttonForwardRef = new ForwardRef();
             BaseMatMenu Menu;
 
-            public void OnClick(UIMouseEventArgs e)
+            public void OnClick(MouseEventArgs e)
             {
                 this.Menu.OpenAsync();
             }
@@ -38,7 +38,7 @@
 
         <p>
             <MatButton Label=""Menu"" OnClick=""@OnClick"" RefBack=""@buttonForwardRef""></MatButton>
-            <MatMenu ref=""Menu"" TargetForwardRef=""@buttonForwardRef"">
+            <MatMenu @ref=""Menu""  TargetForwardRef=""@buttonForwardRef"">
                 <MatList>
                     <MatListItem>Item 1</MatListItem>
                     <MatListItem>Item 2</MatListItem>
@@ -49,12 +49,12 @@
             </MatMenu>
         </p>
 
-        @functions
+        @code
         {
             ForwardRef buttonForwardRef = new ForwardRef();
             BaseMatMenu Menu;
 
-            public void OnClick(UIMouseEventArgs e)
+            public void OnClick(MouseEventArgs e)
             {
                 this.Menu.OpenAsync();
             }
@@ -69,11 +69,9 @@
 
 <DemoContainer>
     <Content>
-        @using Microsoft.AspNetCore.Components
-
         <p>
-            <MatButton Label="Menu" OnClick="@OnClick2" ref="Button2"></MatButton>
-            <MatMenu ref="Menu2">
+            <MatButton Label="Menu" OnClick="@OnClick2" @ref="Button2" ></MatButton>
+            <MatMenu @ref="Menu2" >
                 <MatList>
                     <MatListItem>Item 1</MatListItem>
                     <MatListItem>Item 2</MatListItem>
@@ -84,12 +82,12 @@
             </MatMenu>
         </p>
 
-        @functions
+        @code
         {
-            BaseMatButton Button2;
+            MatButton Button2;
             BaseMatMenu Menu2;
 
-            public void OnClick2(UIMouseEventArgs e)
+            public void OnClick2(MouseEventArgs e)
             {
                 this.Menu2.OpenAsync(Button2.Ref);
             }
@@ -99,11 +97,9 @@
     </Content>
     <SourceContent>
     	<BlazorFiddle Template="MatBlazor" Code=@(@"
-        @using Microsoft.AspNetCore.Components
-
         <p>
-            <MatButton Label=""Menu"" OnClick=""@OnClick2"" ref=""Button2""></MatButton>
-            <MatMenu ref=""Menu2"">
+            <MatButton Label=""Menu"" OnClick=""@OnClick2"" @ref=""Button2"" ></MatButton>
+            <MatMenu @ref=""Menu2"" >
                 <MatList>
                     <MatListItem>Item 1</MatListItem>
                     <MatListItem>Item 2</MatListItem>
@@ -114,12 +110,12 @@
             </MatMenu>
         </p>
 
-        @functions
+        @code
         {
-            BaseMatButton Button2;
+            MatButton Button2;
             BaseMatMenu Menu2;
 
-            public void OnClick2(UIMouseEventArgs e)
+            public void OnClick2(MouseEventArgs e)
             {
                 this.Menu2.OpenAsync(Button2.Ref);
             }
